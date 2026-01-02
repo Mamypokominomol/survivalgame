@@ -2,12 +2,13 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Survival V: Mobile Controls</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Survival V: Mobile Smooth</title>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;800&family=Creepster&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
-        body { margin: 0; overflow: hidden; font-family: 'Kanit', sans-serif; background: #050505; user-select: none; touch-action: none; }
+        /* ป้องกันการเลือกข้อความและการแตะซ้ำในมือถือ */
+        body { margin: 0; overflow: hidden; font-family: 'Kanit', sans-serif; background: #050505; user-select: none; -webkit-user-select: none; touch-action: none; }
         #game-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
         
         /* UI Layers */
@@ -108,25 +109,25 @@
         .touch-zone { pointer-events: auto; position: absolute; }
 
         #joystick-area {
-            bottom: 40px; left: 40px; width: 140px; height: 140px;
+            bottom: 40px; left: 40px; width: 160px; height: 160px; /* ใหญ่ขึ้นนิดหน่อย */
             background: rgba(255, 255, 255, 0.1); border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 50%;
         }
         #joystick-knob {
-            position: absolute; top: 50%; left: 50%; width: 60px; height: 60px;
+            position: absolute; top: 50%; left: 50%; width: 70px; height: 70px;
             background: rgba(255, 255, 255, 0.5); border-radius: 50%; transform: translate(-50%, -50%);
         }
 
         #action-area {
             bottom: 40px; right: 40px;
-            display: flex; flex-direction: column-reverse; align-items: flex-end; gap: 15px;
+            display: flex; flex-direction: column-reverse; align-items: flex-end; gap: 20px;
         }
         .mob-btn {
-            width: 70px; height: 70px; background: rgba(0,0,0,0.5); border: 2px solid white; border-radius: 50%;
-            color: white; font-size: 24px; display: flex; justify-content: center; align-items: center;
+            width: 80px; height: 80px; background: rgba(0,0,0,0.5); border: 2px solid white; border-radius: 50%;
+            color: white; font-size: 30px; display: flex; justify-content: center; align-items: center;
             user-select: none; transition: 0.1s;
         }
         .mob-btn:active { background: rgba(255,255,255,0.3); transform: scale(0.95); }
-        #btn-main { width: 90px; height: 90px; font-size: 40px; background: rgba(200, 50, 50, 0.6); }
+        #btn-main { width: 100px; height: 100px; font-size: 50px; background: rgba(200, 50, 50, 0.6); }
         #btn-run.active { background: rgba(0, 255, 0, 0.6); border-color: #0f0; }
 
         /* Show mobile controls on touch devices */
@@ -135,9 +136,9 @@
             .pc-hint { display: none; }
         }
         
-        /* Look Zone (Invisible) */
+        /* Look Zone (Invisible - ครอบคลุมครึ่งขวา) */
         #look-zone {
-            position: absolute; top: 0; right: 0; width: 50%; height: 100%; pointer-events: auto;
+            position: absolute; top: 0; right: 0; width: 60%; height: 100%; pointer-events: auto;
         }
     </style>
 </head>
@@ -192,14 +193,14 @@
             <div id="joystick-area" class="touch-zone">
                 <div id="joystick-knob"></div>
             </div>
-            <!-- Look Zone (Right half background) -->
+            <!-- Look Zone -->
             <div id="look-zone"></div>
             <!-- Buttons -->
             <div id="action-area" class="touch-zone">
-                <div class="mob-btn" id="btn-main">👊</div> <!-- Space/Attack -->
+                <div class="mob-btn" id="btn-main">👊</div>
                 <div style="display:flex; gap:15px;">
-                    <div class="mob-btn" id="btn-skill">⚡</div> <!-- Skill -->
-                    <div class="mob-btn" id="btn-run">🏃</div> <!-- Run Toggle -->
+                    <div class="mob-btn" id="btn-skill">⚡</div>
+                    <div class="mob-btn" id="btn-run">🏃</div>
                 </div>
             </div>
         </div>
@@ -301,12 +302,12 @@
             const joyKnob = document.getElementById('joystick-knob');
             const lookZone = document.getElementById('look-zone');
             
-            // Joystick
+            // Joystick Logic
             joyArea.addEventListener('touchstart', (e) => handleJoy(e, joyArea, joyKnob));
             joyArea.addEventListener('touchmove', (e) => handleJoy(e, joyArea, joyKnob));
             joyArea.addEventListener('touchend', (e) => resetJoy(joyKnob));
             
-            // Look
+            // Look Logic (Increased Sensitivity)
             let lastTouchX = 0;
             lookZone.addEventListener('touchstart', (e) => { lastTouchX = e.touches[0].clientX; });
             lookZone.addEventListener('touchmove', (e) => {
@@ -314,10 +315,10 @@
                 const x = e.touches[0].clientX;
                 const dx = x - lastTouchX;
                 lastTouchX = x;
-                if(state.playing) player.rotation.y -= dx * 0.005;
+                if(state.playing) player.rotation.y -= dx * 0.02; // Sensitivity Increased (was 0.005)
             });
 
-            // Buttons
+            // Buttons Logic
             document.getElementById('btn-main').addEventListener('touchstart', (e) => { 
                 e.preventDefault(); 
                 e.stopPropagation();
